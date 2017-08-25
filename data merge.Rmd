@@ -1,0 +1,36 @@
+---
+title: "Data Merge"
+author: "Pan"
+date: "25 August 2017"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Data information
+
+I merge data from two different data set, get the information and make the correlation plot
+
+- Gene Expression
+- DNA methylation
+
+## Slide with Bullets
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+## Slide with R Output
+
+```{r cars, echo = TRUE}
+summary(cars)
+```
+
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+

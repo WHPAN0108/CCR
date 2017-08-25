@@ -1,0 +1,37 @@
+---
+title: "Statistical analysis"
+author: "Pan"
+date: "25 August 2017"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## group comparsion
+
+Ttest / wilcoxon test
+Permutation test
+ANOVA
+
+## Multivariate analysis
+
+PCA
+Conctraniend analysis
+
+## linear regression
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+## logistic regression
+
+```{r cars, echo = TRUE}
+summary(cars)
+```
+
+## GEE
+
+
