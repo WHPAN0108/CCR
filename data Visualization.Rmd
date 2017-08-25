@@ -1,0 +1,51 @@
+---
+title: "Data Visualization"
+author: "Pan"
+date: "25 August 2017"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Research question
+
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('/projects/Goeteborg project/20160510/Gothenburg project/figure for publication/figure1/Figure1.new.jpg')
+```
+
+
+## Information want to present
+
+- Differential expressed gene name
+- Time
+- Gene position
+- DNA methylation 
+
+## R package: circlize
+
+Load Data
+```{r, include = FALSE, echo=FALSE}
+library(xlsx)
+```
+
+```{r , echo = TRUE}
+DMR<-read.xlsx("/projects/Goeteborg project/20160510/Gothenburg project/figure for publication/figure5/INTERGRATE_NEW.xlsx",sheetIndex = 1)
+gene<-read.xlsx("/projects/Goeteborg project/20160510/Gothenburg project/figure for publication/figure5/INTERGRATE_NEW.xlsx",sheetIndex = 2)
+head(gene)
+gene$chr<-paste0("chr",gene$chr)
+DMR$chr<-paste0("chr",DMR$chr)
+gene$week<-factor(gene$week,levels = c("W1","W4","W12/16"))
+```
+
+## Mouse genome
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+library(circlize)
+circos.clear()
+circos.par(gap.degree = 2, start.degree = 80)
+circos.initializeWithIdeogram(chromosome.index = c(paste0("chr", 1:19),"chrX"), plotType = c("ideogram", "labels"),ideogram.height = 0.03,species = "mm10")
+```
+
+
