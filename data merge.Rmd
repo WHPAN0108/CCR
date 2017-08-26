@@ -7,30 +7,60 @@ output: slidy_presentation
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+library(reshape2)
+library(ggplot2)
+library(ggpubr)
 ```
 
-## Data information
+## Merge table
 
-I merge data from two different data set, get the information and make the correlation plot
+I merge data from two different data sets, and get the information to make the correlation plot
 
-- Gene Expression
-- DNA methylation
+- Gene : S100A8
+- DNA methylation : close to S100A8 -> cg02813121
 
-## Slide with Bullets
+## Gene expression
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
-
-## Slide with R Output
-
-```{r cars, echo = TRUE}
-summary(cars)
+```{r , echo = TRUE}
+GE<-read.table("/projects/Twin data project/manuscript/Figures/figure3/significant gene express.txt",header=T,sep="\t")
+head(GE)
 ```
 
-## Slide with Plot
-
-```{r pressure}
-plot(pressure)
+## DNA methylation
+```{r , echo = TRUE}
+DM<-read.table("/projects/Twin data project/manuscript/Figures/figure3/20140616.cpg.txt",header=T,sep="\t")
+head(DM)
 ```
 
+## Extract the canidate gene
+
+```{r , echo = TRUE}
+GE_S100A8<-subset(GE,Gene.Symbol=="S100A8")[,grepl("GCRMA",colnames(GE))]
+GE_S100A8<-melt(GE_S100A8,value.name = "Gene_Expression",variable.name = "sampleID")
+GE_samplename_cut<-sapply(strsplit(as.character(GE_S100A8$sampleID), '_'),function(x) x[2])
+GE_S100A8$sampleID<-toupper(gsub("^0+([1-9])","\\1",GE_samplename_cut))
+head(GE_S100A8)
+```
+
+## Extract the cpg site
+
+```{r , echo = TRUE}
+DM_S100A8<-subset(DM,Gene=="S100A8")[,c(1,grep("X",colnames(DM)))]
+head(DM_S100A8)
+DM_S100A8<-melt(DM_S100A8,value.name = "methylation",variable.name = "sampleID")
+DM_S100A8$sampleID<-gsub("X","",DM_S100A8$sampleID)
+head(DM_S100A8)
+```
+
+## Merge two table
+```{r , echo = TRUE,warning=FALSE}
+DM_cg02813121<-subset(DM_S100A8,cgnumber=="cg02813121")[,-1]
+GE_DM<-merge(DM_cg02813121,GE_S100A8,by="sampleID",all=T)
+GE_DM$condition<-ifelse(grepl("A",GE_DM$sampleID),"H","UC")
+head(GE_DM)
+COR_plot<-ggplot(aes(y=Gene_Expression,x=methylation,color=condition),data=GE_DM)+
+  geom_point(size=3)+ theme(legend.position="bottom")
+GE_plot<-ggplot(aes(y=Gene_Expression,x=condition,fill=condition),data=GE_DM)+
+  geom_boxplot()+ theme(legend.position="bottom")
+ggarrange(COR_plot, GE_plot,ncol = 2, nrow = 1)
+```
