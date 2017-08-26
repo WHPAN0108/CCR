@@ -7,31 +7,83 @@ output: slidy_presentation
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+library(xlsx)
+library(ggplot2)
 ```
 
 ## group comparsion
 
 Ttest / wilcoxon test
+```{r, echo=TRUE}
+G<-read.table("group comaprsion.txt",header = T)
+head(G)
+t.test(G[,1],G[,2])
+wilcox.test(G[,1],G[,2])
+```
+
+## Permutation test
+
 Permutation test
-ANOVA
+```{r, echo=TRUE}
+per_test<-function(x,N) {
+  k<-as.numeric(unlist(x));
+  R<-mean(k[1:8])-mean(k[9:16])
+  D<-rep(NA,N)
+  for(i in 1:N){
+    psu<-sample(k,replace = F)
+    D[i]<-mean(psu[1:8])-mean(psu[9:16])
+  }
+  p=ifelse(1-(sum(R>D)/N)<0.5,(sum(R<D)/N)*2,(sum(R>D)/N)*2)
+  return(p)
+}
+per_test(matrix(data = rnorm(16),8,2),1000)
+per_test(G,1000)
+```
 
 ## Multivariate analysis
 
 PCA
-Conctraniend analysis
+```{r, echo=FALSE,results=FALSE}
+ALL_sign<-read.table('/projects/Twin data project/manuscript/Figures/figure1/significant gene express.txt',sep="\t",header=T)
 
-## linear regression
+UP<-which(ALL_sign$fold_change<1)[order(ALL_sign[which(ALL_sign$fold_change<1),"upwtest.intersect.up_sig..fc_sig.."])[1:25]]
+DOWN<-which(ALL_sign$fold_change>1)[order(ALL_sign[which(ALL_sign$fold_change>1),"upwtest.intersect.up_sig..fc_sig.."])[1:25]]
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
+ALL_sign[UP,"upwtest.intersect.up_sig..fc_sig.."]
+ALL_sign[DOWN,"upwtest.intersect.up_sig..fc_sig.."]
 
-## logistic regression
+colnames(ALL_sign)[grepl("GCRMA",colnames(ALL_sign))]
+label_x<-gsub("(\\d+).*", "\\1", colnames(ALL_sign)[grepl("GCRMA",colnames(ALL_sign))])
+label_x<-gsub("NC","H",label_x)
 
-```{r cars, echo = TRUE}
-summary(cars)
+GEvalue<-ALL_sign[,grepl("GCRMA",colnames(ALL_sign))]
+GEvalue50<-as.matrix(GEvalue)[c(UP,DOWN),]
+GEvalue50<-t(apply(GEvalue,1,scale))
 ```
 
-## GEE
+```{r, echo=TRUE}
+head(GEvalue50)
+pca<-prcomp(GEvalue50, scale = FALSE)
+plot(pca, type="line", main="Scree Plot for gene expression")
+vars <- (pca$sdev)^2
+props <- vars / sum(vars)    
+props
 
+pcplot<-pca$rotation[,c(1,2)]
+label_x<-rep(c("H","UC"),each=10)
+DF<-data.frame(label_x,pcplot)
+ggplot(aes(x=PC1,y=PC2,color=label_x),data=DF)+geom_point(size=5)
+```
 
+## chisquare test
+```{r, echo=TRUE}
+GM<-read.table("/projects/Twin data project/manuscript/Figures/figure2/bacteria_table_uc.txt",header=T,row.names = 1)
+dim(GM);head(GM)
+chisq.test(GM[,1],GM[,2],simulate.p.value = TRUE)
+```
+
+## the other methods
+
+- linear regression
+- logistic regression
+- ANOVA
