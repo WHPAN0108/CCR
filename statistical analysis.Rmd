@@ -64,10 +64,12 @@ GEvalue50<-t(apply(GEvalue,1,scale))
 ```{r, echo=TRUE}
 head(GEvalue50)
 pca<-prcomp(GEvalue50, scale = FALSE)
-plot(pca, type="line", main="Scree Plot for gene expression")
 vars <- (pca$sdev)^2
-props <- vars / sum(vars)    
-props
+props <- vars / sum(vars)
+options(scipen=10)
+props*100
+plot(props, type="b", main="Scree Plot for gene expression")
+
 
 pcplot<-pca$rotation[,c(1,2)]
 label_x<-rep(c("H","UC"),each=10)
